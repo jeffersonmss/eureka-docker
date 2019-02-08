@@ -1,0 +1,128 @@
+version: '3.6'
+
+services:
+  eureka-docker:
+    image: eureka-docker
+    build: .
+    ports:
+      - 8761:8761
+    environment: 
+      eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+    restart: always
+    networks: 
+      pos_unipe:
+        aliases: 
+          - eureka
+        ipv4_address: 172.16.238.10
+  zuul:
+    image: zuul
+    build: 
+      context: .
+      dockerfile:  zuul.Dockerfile
+    ports:
+      - 8080:8080
+      - 8761
+    environment: 
+      eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+    restart: always
+    deploy:
+      update_config:
+        delay: 10s
+    networks: 
+      - pos_unipe
+    depends_on: 
+      - eureka-docker
+  brasil:
+    image: brasil
+    build: 
+      context: .
+      dockerfile: brasil.Dockerfile
+    ports:
+      - 8060:8060
+    environment: 
+      eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+    deploy:
+      update_config:
+        delay: 20s
+    networks: 
+      - pos_unipe
+    depends_on: 
+      - eureka-docker
+      - zuul
+  iraque:
+    image: iraque
+    build: 
+      context: .
+      dockerfile: iraque.Dockerfile
+    ports:
+      - 8091:8091
+    environment: 
+      eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+    deploy:
+      update_config:
+        delay: 20s
+    networks: 
+      - pos_unipe
+    depends_on: 
+      - eureka-docker
+      - zuul
+  japao:
+    image: japao
+    build: 
+      context: .
+      dockerfile: japao.Dockerfile
+    ports:
+      - 8070:8070
+    environment: 
+      eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+    deploy:
+      update_config:
+        delay: 20s
+    networks: 
+      - pos_unipe
+    depends_on: 
+      - eureka-docker
+      - zuul
+  colombia:
+    image: colombia
+    build: 
+      context: .
+      dockerfile: colombia.Dockerfile
+    ports:
+      - 8090:8090
+    environment: 
+      eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+    deploy:
+      update_config:
+        delay: 20s
+    networks: 
+      - pos_unipe
+    depends_on: 
+      - eureka-docker
+      - zuul
+  russia:
+    image: russia
+    build: 
+      context: .
+      dockerfile: russia.Dockerfile
+    ports:
+      - 8092:8092
+    environment: 
+      eureka.client.serviceUrl.defaultZone: http://eureka:8761/eureka/
+    deploy:
+      update_config:
+        delay: 20s
+    networks: 
+      - pos_unipe
+    depends_on: 
+      - eureka-docker
+      - zuul
+networks: 
+  pos_unipe:
+    name: pos_unipe
+    driver: bridge
+    ipam: 
+      driver: default
+      config: 
+        -
+          subnet: 172.16.238.0/24
